@@ -1,0 +1,9 @@
+This similarity simply calculates the similarity between two objects
+if two objects are:
+x = ["Circle", "Red", "Small"]
+y = ["Circle", "Blue", "Small"]
+then it calculates the
+Total Attributes p = 3
+Matches m = 2
+Dissimilarity d(x,y) = 1/3 = 0.33
+Similarity sim(x,y) = 1-d = 0.67
