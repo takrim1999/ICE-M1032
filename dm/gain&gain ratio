@@ -1,0 +1,84 @@
+import math
+
+# -------- DATASET --------
+data = [
+    ['Mid', 'Fair', 'Employee', 'Average', 'Yes'],
+    ['Mid', 'Fair', 'Employee', 'Max', 'No'],
+    ['Young', 'Low', 'Student', 'Min', 'Yes'],
+    ['Old', 'High', 'Employee', 'Max', 'No'],
+    ['Old', 'Fair', 'Retire', 'Average', 'No'],
+    ['Young', 'Low', 'Student', 'Min', 'Yes'],
+    ['Young', 'Fair', 'Employee', 'Average', 'Yes'],
+    ['Mid', 'Low', 'Employee', 'Max', 'No'],
+    ['Young', 'Fair', 'Student', 'Average', 'Yes'],
+    ['Old', 'High', 'Retire', 'Min', 'No'],
+    ['Young', 'Fair', 'Employee', 'Average', 'Yes'],
+    ['Mid', 'Low', 'Employee', 'Max', 'Yes']
+]
+
+features = ['Age', 'Income', 'Status', 'Credit']
+
+# -------- ENTROPY FUNCTION --------
+def entropy(dataset):
+    total = len(dataset)
+    yes = sum(1 for row in dataset if row[-1] == 'Yes')
+    no = total - yes
+
+    def calc(p):
+        return -p * math.log2(p) if p != 0 else 0
+
+    return calc(yes/total) + calc(no/total)
+
+# -------- GAIN RATIO FUNCTION --------
+def gain_ratio(dataset, index):
+    total_entropy = entropy(dataset)
+    values = set(row[index] for row in dataset)
+
+    weighted_entropy = 0
+    split_info = 0
+
+    print(f"\nFeature: {features[index]}")
+
+    for v in values:
+        subset = [row for row in dataset if row[index] == v]
+        weight = len(subset) / len(dataset)
+
+        sub_entropy = entropy(subset)
+        weighted_entropy += weight * sub_entropy
+
+        # Split Info calculation
+        if weight != 0:
+            split_info += -weight * math.log2(weight)
+
+        print(f"  Value: {v}")
+        print(f"    Count = {len(subset)}")
+        print(f"    Entropy = {round(sub_entropy, 3)}")
+
+    # Information Gain
+    gain = total_entropy - weighted_entropy
+
+    # Gain Ratio
+    if split_info == 0:
+        ratio = 0
+    else:
+        ratio = gain / split_info
+
+    print(f"  → Information Gain = {round(gain, 3)}")
+    print(f"  → Split Info = {round(split_info, 3)}")
+    print(f"  → Gain Ratio = {round(ratio, 3)}")
+
+    return ratio
+
+# -------- MAIN --------
+print("Entropy of dataset:", round(entropy(data), 3))
+
+ratios = []
+print("\n--- Gain Ratio Calculation ---")
+
+for i in range(len(features)):
+    r = gain_ratio(data, i)
+    ratios.append(r)
+
+# -------- BEST ATTRIBUTE --------
+best_index = ratios.index(max(ratios))
+print("\nBest Attribute (Gain Ratio):", features[best_index])
