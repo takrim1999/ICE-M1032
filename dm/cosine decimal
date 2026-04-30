@@ -1,0 +1,25 @@
+import math
+
+# -------- User Input --------
+x = list(map(float, input("Enter elements of vector X: ").split()))
+y = list(map(float, input("Enter elements of vector Y: ").split()))
+
+# Check if vectors are the same length
+if len(x) != len(y):
+    print("Error: Vectors must be the same length.")
+    exit()
+
+# -------- Compute Cosine Similarity --------
+dot_product = sum(a * b for a, b in zip(x, y))
+norm_x = math.sqrt(sum(a * a for a in x))
+norm_y = math.sqrt(sum(b * b for b in y))
+
+# Handle zero-vector cases
+if norm_x == 0 or norm_y == 0:
+    cosine_similarity = 0.0
+else:
+    cosine_similarity = dot_product / (norm_x * norm_y)
+
+print(f"\nVector X: {x}")
+print(f"Vector Y: {y}")
+print(f"Cosine Similarity: {cosine_similarity:.4f}")

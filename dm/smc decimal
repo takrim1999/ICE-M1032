@@ -1,0 +1,36 @@
+def decimal_to_binary_list(nums, bit_length):
+    bin_list = []
+    for num in nums:
+        b = bin(num)[2:].zfill(bit_length)  # Convert to binary and pad with zeros
+        bin_list.extend([int(bit) for bit in b])
+    return bin_list
+
+# -------- User Input --------
+x = list(map(int, input("Enter decimal numbers for vector X: ").split()))
+y = list(map(int, input("Enter decimal numbers for vector Y: ").split()))
+
+# Determine bit length
+max_num = max(max(x), max(y))
+bit_length = max_num.bit_length()
+
+# Convert to bit-level binary vectors
+x_bin = decimal_to_binary_list(x, bit_length)
+y_bin = decimal_to_binary_list(y, bit_length)
+
+# -------- Compute SMC --------
+q = r = s = t = 0
+for a, b in zip(x_bin, y_bin):
+    if a == 1 and b == 1:
+        q += 1
+    elif a == 1 and b == 0:
+        r += 1
+    elif a == 0 and b == 1:
+        s += 1
+    elif a == 0 and b == 0:
+        t += 1
+
+smc_similarity = (q + t) / (q + r + s + t)
+
+print(f"\nBit-level vector X: {x_bin}")
+print(f"Bit-level vector Y: {y_bin}")
+print(f"SMC Similarity (bit-level): {smc_similarity:.4f}")

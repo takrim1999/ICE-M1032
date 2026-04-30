@@ -1,0 +1,118 @@
+
+#pip install scikit-learn
+import math
+import random
+import numpy as np
+from sklearn.metrics import silhouette_score
+
+# -------- INPUT --------
+n = int(input("Enter number of points: "))
+data = []
+
+print("Enter points (x y):")
+for _ in range(n):
+    x, y = map(float, input().split())
+    data.append([x, y])
+
+# -------- DISTANCE --------
+def dist(p1, p2):
+    return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
+
+# -------- K-MEANS --------
+def kmeans(data, k):
+    centroids = random.sample(data, k)
+
+    while True:
+        clusters = [[] for _ in range(k)]
+
+        for p in data:
+            d = [dist(p, c) for c in centroids]
+            idx = d.index(min(d))
+            clusters[idx].append(p)
+
+        new_centroids = []
+        for cluster in clusters:
+            if cluster:
+                x = sum(p[0] for p in cluster) / len(cluster)
+                y = sum(p[1] for p in cluster) / len(cluster)
+                new_centroids.append([x, y])
+            else:
+                new_centroids.append([0, 0])
+
+        if new_centroids == centroids:
+            break
+
+        centroids = new_centroids
+
+    return clusters
+
+# -------- K-MEANS FOR 3,5,7 --------
+print("\n--- K-MEANS RESULTS ---")
+
+best_k = None
+best_score = -1
+
+for k in [3, 5, 7]:
+    print(f"\nK = {k}")
+    clusters = kmeans(data, k)
+
+    # print clusters
+    for i, c in enumerate(clusters):
+        print(f"Cluster {i+1}: {c}")
+
+    # -------- CREATE LABELS FOR SILHOUETTE --------
+    labels = []
+    for i, cluster in enumerate(clusters):
+        for _ in cluster:
+            labels.append(i)
+
+    # -------- SILHOUETTE SCORE --------
+    if len(set(labels)) > 1:
+        score = silhouette_score(np.array(data), labels)
+        print(f"Silhouette Score = {score:.4f}")
+
+        if score > best_score:
+            best_score = score
+            best_k = k
+    else:
+        print("Silhouette not defined")
+
+print(f"\nBest K = {best_k} (highest silhouette score)")
+
+# -------- AGGLOMERATIVE --------
+print("\n--- AGGLOMERATIVE (4 clusters) ---")
+
+clusters = [[p] for p in data]
+
+while len(clusters) > 4:
+    min_d = float('inf')
+    pair = (0, 1)
+
+    for i in range(len(clusters)):
+        for j in range(i+1, len(clusters)):
+            d = dist(clusters[i][0], clusters[j][0])
+            if d < min_d:
+                min_d = d
+                pair = (i, j)
+
+    i, j = pair
+    clusters[i] += clusters[j]
+    clusters.pop(j)
+
+for i, c in enumerate(clusters):
+    print(f"Cluster {i+1}: {c}")
+
+# -------- DIVISIVE --------
+print("\n--- DIVISIVE (4 clusters) ---")
+
+clusters = [data]
+
+while len(clusters) < 4:
+    clusters.sort(key=len, reverse=True)
+    largest = clusters.pop(0)
+
+    split = kmeans(largest, 2)
+    clusters.extend(split)
+
+for i, c in enumerate(clusters):
+    print(f"Cluster {i+1}: {c}")

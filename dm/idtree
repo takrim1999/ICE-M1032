@@ -1,0 +1,82 @@
+import math
+import pandas as pd
+
+# -------- DATASET --------
+data = pd.DataFrame([
+    ['Sunny', 'Hot', 'High', 'Weak', 'No'],
+    ['Sunny', 'Hot', 'High', 'Strong', 'No'],
+    ['Overcast', 'Hot', 'High', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'High', 'Weak', 'Yes'],
+    ['Rain', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Cool', 'Normal', 'Strong', 'No'],
+    ['Overcast', 'Cool', 'Normal', 'Strong', 'Yes'],
+    ['Sunny', 'Mild', 'High', 'Weak', 'No'],
+    ['Sunny', 'Cool', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'Normal', 'Weak', 'Yes'],
+    ['Sunny', 'Mild', 'Normal', 'Strong', 'Yes'],
+    ['Overcast', 'Mild', 'High', 'Strong', 'Yes'],
+    ['Overcast', 'Hot', 'Normal', 'Weak', 'Yes'],
+    ['Rain', 'Mild', 'High', 'Strong', 'No']
+])
+
+data.columns = ['Outlook', 'Temperature', 'Humidity', 'Wind', 'Play']
+target_col = 'Play'
+
+# -------- ENTROPY --------
+def entropy(column):
+    values = column.value_counts()
+    total = len(column)
+    ent = 0
+
+    for v in values:
+        p = v / total
+        ent += -p * math.log2(p)
+
+    return ent
+
+# -------- INFORMATION GAIN --------
+def info_gain(data, feature, target):
+    total_entropy = entropy(data[target])
+    values = data[feature].unique()
+
+    weighted_entropy = 0
+    for v in values:
+        subset = data[data[feature] == v]
+        weighted_entropy += (len(subset)/len(data)) * entropy(subset[target])
+
+    return total_entropy - weighted_entropy
+
+# -------- ID3 --------
+def id3(data, features, target):
+    if len(data) == 0:
+        return None
+
+    if len(data[target].unique()) == 1:
+        return data[target].iloc[0]
+
+    if len(features) == 0:
+        return data[target].mode()[0]
+
+    gains = [info_gain(data, f, target) for f in features]
+    print("Gains:", dict(zip(features, [round(g,3) for g in gains])))
+
+    best_feature = features[gains.index(max(gains))]
+    tree = {best_feature: {}}
+
+    for value in data[best_feature].unique():
+        subset = data[data[best_feature] == value]
+        new_features = [f for f in features if f != best_feature]
+
+        subtree = id3(subset, new_features, target)
+        tree[best_feature][value] = subtree
+
+    return tree
+
+# -------- RUN --------
+features = list(data.columns)
+features.remove(target_col)
+
+tree = id3(data, features, target_col)
+
+print("\n--- DECISION TREE ---")
+print(tree)

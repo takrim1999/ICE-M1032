@@ -1,0 +1,26 @@
+def jaccard_similarity(x, y):
+    q = r = s = 0
+
+    for i in range(len(x)):
+        if x[i] == 1 and y[i] == 1:
+            q += 1
+        elif x[i] == 1 and y[i] == 0:
+            r += 1
+        elif x[i] == 0 and y[i] == 1:
+            s += 1
+
+    denom = q + r + s
+    return q / denom if denom != 0 else 0.0
+
+
+# -------- Main --------
+n = int(input("Enter length of binary vectors: "))
+
+print("Enter elements of vector X (0 or 1):")
+x = list(map(int, input().split()))
+
+print("Enter elements of vector Y (0 or 1):")
+y = list(map(int, input().split()))
+
+jaccard = jaccard_similarity(x, y)
+print(f"Jaccard Similarity: {jaccard:.4f}")

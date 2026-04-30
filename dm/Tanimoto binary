@@ -1,0 +1,22 @@
+n = int(input("Enter length of vectors: "))
+
+print("Enter elements of vector X:")
+x = list(map(float, input().split()))
+
+print("Enter elements of vector Y:")
+y = list(map(float, input().split()))
+
+dot_xy = sum(a * b for a, b in zip(x, y))
+dot_xx = sum(a * a for a in x)
+dot_yy = sum(b * b for b in y)
+
+denom = dot_xx + dot_yy - dot_xy
+
+if denom == 0:
+    tanimoto = 0.0
+else:
+    tanimoto = dot_xy / denom
+
+print(f"\nVector X: {x}")
+print(f"Vector Y: {y}")
+print(f"Tanimoto Coefficient: {tanimoto:.4f}")

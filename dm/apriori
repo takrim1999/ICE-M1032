@@ -1,0 +1,95 @@
+from itertools import combinations
+
+# -------- Input --------
+n = int(input("Enter number of transactions: "))
+transactions = []
+
+print("Enter items (space separated):")
+for _ in range(n):
+    t = input().split()
+    transactions.append(set(t))
+
+min_support = int(input("Enter minimum support: "))
+min_confidence = float(input("Enter minimum confidence (0-1): "))
+
+# -------- Support Function --------
+def get_support(itemset):
+    count = 0
+    for t in transactions:
+        if itemset.issubset(t):
+            count += 1
+    return count
+
+# -------- C1 --------
+items = set()
+for t in transactions:
+    items.update(t)
+
+C1 = [{i} for i in items]
+
+# -------- L1 --------
+L = []
+support_data = {}
+
+L1 = []
+for item in C1:
+    s = get_support(set(item))
+    if s >= min_support:
+        L1.append(set(item))
+        support_data[frozenset(item)] = s
+        print(f"{set(item)} -> {s}")
+
+L.append(L1)
+
+k = 2
+
+# -------- Generate Lk --------
+while L[k-2]:
+    print(f"\nGenerating L{k}...")
+
+    candidates = []
+    prev_L = L[k-2]
+
+    for i in range(len(prev_L)):
+        for j in range(i+1, len(prev_L)):
+            union = prev_L[i] | prev_L[j]
+            if len(union) == k:
+                candidates.append(union)
+
+    candidates = list(map(set, set(map(frozenset, candidates))))
+
+    Lk = []
+    for c in candidates:
+        s = get_support(c)
+        if s >= min_support:
+            Lk.append(c)
+            support_data[frozenset(c)] = s
+            print(f"{c} -> {s}")
+
+    if not Lk:
+        break  # ❌ stops empty list from printing
+
+    L.append(Lk)
+    k += 1
+
+# -------- Final Frequent Itemsets --------
+print("\nAll Frequent Itemsets:")
+for i, level in enumerate(L, start=1):
+    print(f"L{i}: {level}")
+
+# -------- Association Rules --------
+print("\n--- Association Rules ---")
+
+for itemset in support_data:
+    if len(itemset) < 2:
+        continue
+
+    for i in range(1, len(itemset)):
+        for antecedent in combinations(itemset, i):
+            antecedent = frozenset(antecedent)
+            consequent = itemset - antecedent
+
+            conf = support_data[itemset] / support_data[antecedent]
+
+            if conf >= min_confidence:
+                print(f"{set(antecedent)} -> {set(consequent)} (Confidence: {conf:.2f})")

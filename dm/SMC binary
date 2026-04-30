@@ -1,0 +1,27 @@
+def smc_similarity(x, y):
+    q = r = s = t = 0
+
+    for i in range(len(x)):
+        if x[i] == 1 and y[i] == 1:
+            q += 1
+        elif x[i] == 1 and y[i] == 0:
+            r += 1
+        elif x[i] == 0 and y[i] == 1:
+            s += 1
+        elif x[i] == 0 and y[i] == 0:
+            t += 1
+
+    return (q + t) / (q + r + s + t)
+
+
+# -------- Main --------
+n = int(input("Enter length of binary vectors: "))
+
+print("Enter elements of vector X (0 or 1):")
+x = list(map(int, input().split()))
+
+print("Enter elements of vector Y (0 or 1):")
+y = list(map(int, input().split()))
+
+smc = smc_similarity(x, y)
+print(f"SMC Similarity: {smc:.4f}")
