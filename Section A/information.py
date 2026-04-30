@@ -46,7 +46,7 @@ def information_gain(dataset, index):
         print(f"Information Gain: {round(gain,3)}")
         return gain
 
-print("Entropy of Dataset: ", round(get_entropy(data)),3)
+print("Entropy of Dataset: ", round(get_entropy(data),3))
 gains = []
 print("Information Gains")
 for i in range(len(features)):
